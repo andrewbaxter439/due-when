@@ -1,3 +1,5 @@
+[![Buy me a coffee](https://img.shields.io/static/v1?label=&message=Buy%20me%20a%20coffee&logo=buy-me-a-coffee&color=fade25&logoColor=grey)](https://www.buymeacoffee.com/andybaxter)
+
 # Due When plugin
 
 This adds four commands to enter a due date date in the format \[due:: YY-MM-DD\] at cursor (with optional hashtags):
