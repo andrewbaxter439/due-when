@@ -209,7 +209,7 @@ class DueWhenSettingsTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Last Friday')
+			.setName('Last Weekday')
 			.setDesc('Set end-of-month to last weekday of month (instead of last day?)')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.lastWeekday)
