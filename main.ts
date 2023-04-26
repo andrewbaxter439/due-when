@@ -7,6 +7,7 @@ interface DueWhenSettings {
 	nextWeekTag: string;
 	thisMonthTag: string;
 	neverTag: string;
+	lastWeekday: boolean
 }
 
 const DEFAULT_SETTINGS: DueWhenSettings = {
@@ -14,6 +15,7 @@ const DEFAULT_SETTINGS: DueWhenSettings = {
 	nextWeekTag: "#upcoming",
 	thisMonthTag: "#ongoing",
 	neverTag: "#abandoned",
+	lastWeekday: false
 }
 
 export default class DueWhen extends Plugin {
@@ -66,9 +68,20 @@ export default class DueWhen extends Plugin {
 				let date = new Date();
 				
 				const month = date.getMonth();
+
 				
 				date.setMonth(month + 1);
 				date.setDate(0);
+
+				const dow = date.getDay()
+				
+				if (this.settings.lastWeekday) {
+					if (dow == 0) {
+						date.setDate(date.getDate() - 2)
+					} else if (dow == 6) {
+						date.setDate(date.getDate() - 1)
+					}
+				}
 				
 				editor.replaceSelection("[due:: " + date.toISOString().split('T')[0] + "] " + this.settings.thisMonthTag);
 			}
@@ -194,5 +207,15 @@ class DueWhenSettingsTab extends PluginSettingTab {
 					this.plugin.settings.neverTag = value;
 					await this.plugin.saveSettings();
 				}));
+
+		new Setting(containerEl)
+			.setName('Last Friday')
+			.setDesc('Set end-of-month to last weekday of month (instead of last day?)')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.lastWeekday)
+				.onChange(async (value) => {
+					this.plugin.settings.lastWeekday = value;
+					await this.plugin.saveSettings();
+				}))
 	}
 }
