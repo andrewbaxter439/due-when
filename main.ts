@@ -2,16 +2,18 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 
 // Remember to rename these classes and interfaces!
 
-interface MyPluginSettings {
-	mySetting: string;
+interface DueWhenSettings {
+	thisWeekTag: string;
+	nextWeekTag: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+const DEFAULT_SETTINGS: DueWhenSettings = {
+	thisWeekTag: "#thisweek",
+	nextWeekTag: "#ongoing",
 }
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class DueWhen extends Plugin {
+	settings: DueWhenSettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -45,28 +47,43 @@ export default class MyPlugin extends Plugin {
 				editor.replaceSelection('Sample Editor Command');
 			}
 		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
+		// My insert date command
 		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
+			id: 'end-of-this-week',
+			name: 'Due end of this week',
+			editorCallback: (editor: Editor, view: MarkdownView) => {
+				let date = new Date();
 
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
+				const dow = date.getDay();
+				const dom = date.getDate();
+
+				let add_days = (12 - dow) % 7;
+				
+				date.setDate(dom + add_days);
+				
+				editor.replaceSelection("[due:: " + date.toISOString().split('T')[0] + "] " + this.settings.thisWeekTag);
+			}
+		});
+		// My insert date next week command
+		this.addCommand({
+			id: 'end-of-next-week',
+			name: 'Due end of next week',
+			editorCallback: (editor: Editor, view: MarkdownView) => {
+				let date = new Date();
+				
+				const dow = date.getDay();
+				const dom = date.getDate();
+				
+				let add_days = (12 - dow) % 7;
+				
+				date.setDate(dom + add_days + 7);
+
+				editor.replaceSelection("[due:: " + date.toISOString().split('T')[0] + "] " + this.settings.nextWeekTag);
 			}
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new DueWhenSettingsTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -107,10 +124,10 @@ class SampleModal extends Modal {
 	}
 }
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+class DueWhenSettingsTab extends PluginSettingTab {
+	plugin: DueWhen;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: DueWhen) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -120,17 +137,29 @@ class SampleSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
+		containerEl.createEl('h2', {text: 'Settings for the Due When plugin.'});
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('This week tag')
+			.setDesc('Tag to add to due dates set at the end of this week')
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
+				.setPlaceholder('#thisweek')
+				.setValue(this.plugin.settings.thisWeekTag)
 				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
+					console.log('New tag for this week: ' + value);
+					this.plugin.settings.thisWeekTag = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Next week tag')
+			.setDesc('Tag to add to due dates set at the end of next week')
+			.addText(text => text
+				.setPlaceholder('#ongoing')
+				.setValue(this.plugin.settings.nextWeekTag)
+				.onChange(async (value) => {
+					console.log('New tag for next week: ' + value);
+					this.plugin.settings.nextWeekTag = value;
 					await this.plugin.saveSettings();
 				}));
 	}
