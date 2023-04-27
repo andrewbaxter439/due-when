@@ -1,4 +1,7 @@
+![GitHub Actions](https://github.com/andrewbaxter439/due-when/actions/workflows/release.yml/badge.svg)
+[![codebeat badge](https://codebeat.co/badges/c89246b9-83c0-4b66-a403-9c0689fd38db)](https://codebeat.co/projects/github-com-andrewbaxter439-due-when-master)
 [![Buy me a coffee](https://img.shields.io/static/v1?label=&message=Buy%20me%20a%20coffee&logo=buy-me-a-coffee&color=fade25&logoColor=grey)](https://www.buymeacoffee.com/andybaxter)
+
 
 # Due When plugin
 
