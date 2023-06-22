@@ -1,7 +1,5 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
-// Remember to rename these classes and interfaces!
-
 interface DueWhenSettings {
 	thisWeekTag: string;
 	nextWeekTag: string;
@@ -102,7 +100,6 @@ export default class DueWhen extends Plugin {
 		});
 		
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new DueWhenSettingsTab(this.app, this));
 		
 	}
@@ -133,8 +130,6 @@ class DueWhenSettingsTab extends PluginSettingTab {
 		const {containerEl} = this;
 
 		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings for the Due When plugin.'});
 
 		new Setting(containerEl)
 			.setName('This week tag')
